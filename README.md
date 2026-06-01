@@ -119,6 +119,28 @@ $ npx mocha --require ts-node/register --extensions ts 'test/sc_custom/test_*.ts
 $ ./scripts/test.sh local,30000
 ```
 
+dev 넷에서 여러 계정을 동시에 돌려 동시성 부하를 보고 싶으면 <code>scripts/test2.sh</code> 를 쓴다. 미리 등록된 10개 계정을 각각 별도 프로세스로 띄워 SDK state (nonce 등) 충돌 없이 병렬 실행한다.
+
+```bash
+# 10개 계정 전부, 전체 suite
+$ ./scripts/test2.sh
+
+# 계정 수만 줄이기 (1..10)
+$ N=3 ./scripts/test2.sh
+
+# 일부 suite 만
+$ SUITES="did dmile" ./scripts/test2.sh
+
+# 조합
+$ N=5 SUITES="nft prescription" ./scripts/test2.sh
+```
+
+- 각 사용자 로그는 [logs/concurrent/&lt;timestamp&gt;/user-&lt;idx&gt;.log](logs/concurrent/) 에 쌓인다.
+- 한 명이라도 실패하면 종료 코드가 0이 아니고, 콘솔에 실패한 user index 와 로그 경로가 찍힌다.
+- 계정/프라이빗 키는 스크립트 상단 `ACCOUNTS` 배열에 하드코딩되어 있으며 dev 넷 전용이다. 다른 환경에는 쓰지 말 것.
+
+<br>
+
 매일 자동으로 돌려서 추이를 보고 싶으면 <code>scripts/nightly.sh</code> 를 cron 에 등록한다.
 
 ```bash
