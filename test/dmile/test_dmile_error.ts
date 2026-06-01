@@ -30,7 +30,12 @@ describe("dmile / error", function () {
   before(async () => {
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address;
-    await (await mitum.contract.touch(privatekey, wallet)).wait(timeout, 1000);
+    const touchRes: any = await mitum.contract.touch(privatekey, wallet);
+    if (touchRes?.response?.status !== 200) {
+      console.log("[debug] touch send status=", touchRes?.response?.status,
+                  "data=", JSON.stringify(touchRes?.response?.error_message));
+    }
+    await touchRes.wait(timeout, 1000);
     const op = mitum.program.registerByCodeFile(
       contractAddress,
       sender,
@@ -38,7 +43,12 @@ describe("dmile / error", function () {
       currency,
     );
     op.sign(privatekey);
-    await (await mitum.operation.send(op)).wait(timeout, 1000);
+    const regRes: any = await mitum.operation.send(op);
+    if (regRes?.response?.status !== 200) {
+      console.log("[debug] send status=", regRes?.response?.status,
+                  "data=", JSON.stringify(regRes?.response?.error_message));
+    }
+    await regRes.wait(timeout, 1000);
   });
 
   it("1. Revert: EarnMileage empty anchorID", async function () {
@@ -50,7 +60,12 @@ describe("dmile / error", function () {
             "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
         });
         op.sign(privatekey);
-        return await (await mitum.operation.send(op)).wait(timeout, 1000);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
+        return await res.wait(timeout, 1000);
       },
       undefined,
       "empty anchor id",
@@ -66,7 +81,12 @@ describe("dmile / error", function () {
           merkleRoot: "tooshort",
         });
         op.sign(privatekey);
-        return await (await mitum.operation.send(op)).wait(timeout, 1000);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
+        return await res.wait(timeout, 1000);
       },
       undefined,
       "invalid merkle root length",

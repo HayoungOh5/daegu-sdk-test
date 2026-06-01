@@ -43,7 +43,11 @@ describe("nft / error", function () {
   };
 
   const fire = async (op: ReturnType<typeof buildCall>) => {
-    const res = await mitum.operation.send(op);
+    const res: any = await mitum.operation.send(op);
+    if (res?.response?.status !== 200) {
+      console.log("[debug] send status=", res?.response?.status,
+                  "data=", JSON.stringify(res?.response?.error_message));
+    }
     return await res.wait(timeout, 1000);
   };
 
@@ -51,11 +55,21 @@ describe("nft / error", function () {
     const acc = mitum.account.createWallet(sender, currency, 1000);
     user2 = { address: acc.wallet.address, privatekey: acc.wallet.privatekey };
     acc.operation.sign(privatekey);
-    await (await mitum.operation.send(acc.operation)).wait(timeout, 1000);
+    const accRes: any = await mitum.operation.send(acc.operation);
+    if (accRes?.response?.status !== 200) {
+      console.log("[debug] send status=", accRes?.response?.status,
+                  "data=", JSON.stringify(accRes?.response?.error_message));
+    }
+    await accRes.wait(timeout, 1000);
 
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address;
-    await (await mitum.contract.touch(privatekey, wallet)).wait(timeout, 1000);
+    const touchRes: any = await mitum.contract.touch(privatekey, wallet);
+    if (touchRes?.response?.status !== 200) {
+      console.log("[debug] touch send status=", touchRes?.response?.status,
+                  "data=", JSON.stringify(touchRes?.response?.error_message));
+    }
+    await touchRes.wait(timeout, 1000);
     const reg = mitum.program.registerByCodeFile(
       contractAddress,
       sender,
@@ -64,7 +78,12 @@ describe("nft / error", function () {
       { name: "ErrNFT", symbol: "ENFT" },
     );
     reg.sign(privatekey);
-    await (await mitum.operation.send(reg)).wait(timeout, 1000);
+    const regRes: any = await mitum.operation.send(reg);
+    if (regRes?.response?.status !== 200) {
+      console.log("[debug] send status=", regRes?.response?.status,
+                  "data=", JSON.stringify(regRes?.response?.error_message));
+    }
+    await regRes.wait(timeout, 1000);
 
     await fire(buildCall("Mint", { to: sender, tokenID: seedToken, tokenURI: "ipfs://seed" }));
     await fire(buildCall("Mint", { to: sender, tokenID: lonelyToken, tokenURI: "ipfs://lonely" }));

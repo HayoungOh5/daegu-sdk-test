@@ -34,7 +34,11 @@ describe("dmile / model", function () {
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address;
     await measure({ ...ctx, test: "before:createCA" }, "contract.touch", async () => {
-      const res = await mitum.contract.touch(privatekey, wallet);
+      const res: any = await mitum.contract.touch(privatekey, wallet);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] touch send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     await measure({ ...ctx, test: "before:register" }, "program.registerByCodeFile", async () => {
@@ -45,7 +49,11 @@ describe("dmile / model", function () {
         currency,
       );
       op.sign(privatekey);
-      const res = await mitum.operation.send(op);
+      const res: any = await mitum.operation.send(op);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
   });
@@ -58,7 +66,11 @@ describe("dmile / model", function () {
         merkleRoot,
       });
       op.sign(privatekey);
-      const res = await mitum.operation.send(op);
+      const res: any = await mitum.operation.send(op);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     th.record(this.test!.title, true);

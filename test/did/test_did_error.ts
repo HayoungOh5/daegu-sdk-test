@@ -32,7 +32,12 @@ describe("did / error", function () {
   before(async () => {
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address;
-    await (await mitum.contract.touch(privatekey, wallet)).wait(timeout, 1000);
+    const touchRes: any = await mitum.contract.touch(privatekey, wallet);
+    if (touchRes?.response?.status !== 200) {
+      console.log("[debug] touch send status=", touchRes?.response?.status,
+                  "data=", JSON.stringify(touchRes?.response?.error_message));
+    }
+    await touchRes.wait(timeout, 1000);
     const op = mitum.program.registerByCodeFile(
       contractAddress,
       sender,
@@ -40,13 +45,23 @@ describe("did / error", function () {
       currency,
     );
     op.sign(privatekey);
-    await (await mitum.operation.send(op)).wait(timeout, 1000);
+    const regRes: any = await mitum.operation.send(op);
+    if (regRes?.response?.status !== 200) {
+      console.log("[debug] send status=", regRes?.response?.status,
+                  "data=", JSON.stringify(regRes?.response?.error_message));
+    }
+    await regRes.wait(timeout, 1000);
     // seed one DID for reuse tests
     const seed = mitum.program.call(contractAddress, sender, currency, "CreateDID", {
       pubKey,
     });
     seed.sign(privatekey);
-    await (await mitum.operation.send(seed)).wait(timeout, 1000);
+    const seedRes: any = await mitum.operation.send(seed);
+    if (seedRes?.response?.status !== 200) {
+      console.log("[debug] send status=", seedRes?.response?.status,
+                  "data=", JSON.stringify(seedRes?.response?.error_message));
+    }
+    await seedRes.wait(timeout, 1000);
   });
 
   it("1. Revert: CreateDID with bad pubkey suffix", async function () {
@@ -56,7 +71,12 @@ describe("did / error", function () {
           pubKey: "0123abcXYZ",
         });
         op.sign(privatekey);
-        return await (await mitum.operation.send(op)).wait(timeout, 1000);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
+        return await res.wait(timeout, 1000);
       },
       undefined,
       "invalid pubkey suffix",
@@ -71,7 +91,12 @@ describe("did / error", function () {
           pubKey,
         });
         op.sign(privatekey);
-        return await (await mitum.operation.send(op)).wait(timeout, 1000);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
+        return await res.wait(timeout, 1000);
       },
       undefined,
       "did already created",
@@ -86,7 +111,12 @@ describe("did / error", function () {
           did: "did:fpu:nonexistentfpu",
         });
         op.sign(privatekey);
-        return await (await mitum.operation.send(op)).wait(timeout, 1000);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
+        return await res.wait(timeout, 1000);
       },
       undefined,
       "did document not found",

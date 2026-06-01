@@ -44,7 +44,11 @@ describe("sc_custom / loyalty / model", function () {
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address ?? "";
     await measure({ ...ctx, test: "before:createCA" }, "contract.touch", async () => {
-      const res = await mitum.contract.touch(privatekey, wallet);
+      const res: any = await mitum.contract.touch(privatekey, wallet);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] touch send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     th.log(`contract=${contractAddress} store=${storeName}`);
@@ -57,7 +61,11 @@ describe("sc_custom / loyalty / model", function () {
         storeName,
       });
       op.sign(privatekey);
-      const res = await mitum.operation.send(op);
+      const res: any = await mitum.operation.send(op);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     th.record(this.test!.title, true);
@@ -71,7 +79,11 @@ describe("sc_custom / loyalty / model", function () {
         user: sender,
       });
       op.sign(privatekey);
-      const res = await mitum.operation.send(op);
+      const res: any = await mitum.operation.send(op);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     th.record(this.test!.title, true);
@@ -87,7 +99,11 @@ describe("sc_custom / loyalty / model", function () {
         rate: "5",
       });
       op.sign(privatekey);
-      const res = await mitum.operation.send(op);
+      const res: any = await mitum.operation.send(op);
+      if (res?.response?.status !== 200) {
+        console.log("[debug] send status=", res?.response?.status,
+                    "data=", JSON.stringify(res?.response?.error_message));
+      }
       return await res.wait(timeout, 1000);
     });
     th.record(this.test!.title, true);

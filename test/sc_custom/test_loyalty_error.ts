@@ -31,14 +31,22 @@ describe("sc_custom / loyalty / error", function () {
   before(async () => {
     const wallet = mitum.contract.createWallet(sender, currency, 1);
     contractAddress = wallet.wallet.address;
-    const res = await mitum.contract.touch(privatekey, wallet);
+    const res: any = await mitum.contract.touch(privatekey, wallet);
+    if (res?.response?.status !== 200) {
+      console.log("[debug] touch send status=", res?.response?.status,
+                  "data=", JSON.stringify(res?.response?.error_message));
+    }
     await res.wait(timeout, 1000);
 
     const op = mitum.program.register(contractAddress, sender, LOYALTY_CODE, currency, {
       storeName,
     });
     op.sign(privatekey);
-    const reg = await mitum.operation.send(op);
+    const reg: any = await mitum.operation.send(op);
+    if (reg?.response?.status !== 200) {
+      console.log("[debug] send status=", reg?.response?.status,
+                  "data=", JSON.stringify(reg?.response?.error_message));
+    }
     await reg.wait(timeout, 1000);
   });
 
@@ -50,7 +58,11 @@ describe("sc_custom / loyalty / error", function () {
           user: sender,
         });
         op.sign(privatekey);
-        const res = await mitum.operation.send(op);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
         return await res.wait(timeout, 1000);
       },
       undefined,
@@ -62,7 +74,12 @@ describe("sc_custom / loyalty / error", function () {
   it("2. Revert: AccumulatePoints by non-owner", async function () {
     // 임시 EOA 생성 후 그 키로 호출 → permission denied 기대
     const w = mitum.account.createWallet(sender, currency, 100);
-    await (await mitum.account.touch(privatekey, w)).wait(timeout, 1000);
+    const accTouchRes: any = await mitum.account.touch(privatekey, w);
+    if (accTouchRes?.response?.status !== 200) {
+      console.log("[debug] touch send status=", accTouchRes?.response?.status,
+                  "data=", JSON.stringify(accTouchRes?.response?.error_message));
+    }
+    await accTouchRes.wait(timeout, 1000);
     const otherPriv = (w as any).privatekey ?? privatekey;
     const otherAddr = (w.wallet as any).address ?? sender;
 
@@ -75,7 +92,11 @@ describe("sc_custom / loyalty / error", function () {
           rate: "1",
         });
         op.sign(otherPriv);
-        const res = await mitum.operation.send(op);
+        const res: any = await mitum.operation.send(op);
+        if (res?.response?.status !== 200) {
+          console.log("[debug] send status=", res?.response?.status,
+                      "data=", JSON.stringify(res?.response?.error_message));
+        }
         return await res.wait(timeout, 1000);
       },
       undefined,
