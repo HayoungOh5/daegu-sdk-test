@@ -3,7 +3,7 @@ import * as path from "path";
 
 const METRICS_DIR = path.join(__dirname, "..", "test", "0_metrics");
 const CSV_HEADER =
-  "timestamp,network,suite,test,op,duration_ms,block_height,ok,note\n";
+  "timestamp,network,suite,test,op,is_query,duration_ms,block_height,ok,note\n";
 
 export interface MetricContext {
   network: string;
@@ -57,6 +57,7 @@ export async function measure<T>(
         ctx.suite,
         ctx.test,
         op,
+        /\bquery\b/i.test(op) ? 1 : 0,
         duration,
         block,
         ok ? 1 : 0,

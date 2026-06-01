@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 export type NetworkType = "local" | "dev" | "testnet";
 
 export interface TestAccount {
